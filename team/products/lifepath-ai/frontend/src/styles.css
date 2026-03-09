@@ -1,0 +1,8 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, -apple-system, sans-serif; background: #0b1220; color: #e5ecff; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 24px; margin: 0 0 8px; }
+.sub { color: #9fb0d9; margin-bottom: 14px; }
+textarea { width: 100%; min-height: 140px; border-radius: 12px; padding: 12px; border: 1px solid #2d3f68; background: #101a31; color: #e5ecff; }
+button { margin-top: 12px; width: 100%; border: 0; border-radius: 12px; padding: 12px; background: #3b82f6; color: white; font-weight: 600; }
+.card { margin-top: 16px; padding: 14px; border-radius: 12px; background: #15203c; border: 1px solid #2a3d64; }
