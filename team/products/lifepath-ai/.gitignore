@@ -11,6 +11,9 @@ dist/
 .env
 .env.*
 
+# Local DB
+backend/lifepath.db
+
 # OS
 .DS_Store
 Thumbs.db

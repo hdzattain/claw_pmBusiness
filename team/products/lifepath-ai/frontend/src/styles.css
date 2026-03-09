@@ -39,4 +39,5 @@ button {
 ul { list-style: none; padding: 0; margin: 0; }
 li { border-top: 1px solid #243553; padding: 10px 0; }
 li:first-child { border-top: 0; }
+.pre { white-space: pre-wrap; }
 .msg { color: #fbbf24; }

@@ -38,3 +38,12 @@ npm run dev
 - JWT auth (`/api/auth/register`, `/api/auth/login`)
 - Protected advice APIs (`/api/advice/daily`, `/api/advice/journal`)
 - Basic onboarding UI (register/login + daily advice + masked journal timeline)
+
+## Phase 2 Implemented
+- Morning/Evening flow APIs:
+  - `POST /api/advice/morning`
+  - `POST /api/advice/evening`
+  - `GET /api/advice/journal`
+- Rule-based recommendation engine (`backend/app/core/recommendation.py`)
+- Backend smoke tests (`backend/tests/test_api.py`)
+- Frontend upgraded to "晨间建议 + 晚间复盘" interaction
