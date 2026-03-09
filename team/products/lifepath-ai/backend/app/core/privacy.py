@@ -24,9 +24,12 @@ class PrivacyInterceptor:
         text = self.PHONE_PATTERN.sub("[masked-phone]", text)
         return text
 
+    def hash_text(self, value: str) -> str:
+        return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
     def generate_zkp_proof(self, masked: str) -> str:
         # Placeholder proof: hash-based token
-        digest = hashlib.sha256(masked.encode("utf-8")).hexdigest()[:24]
+        digest = self.hash_text(masked)[:24]
         return f"proof_{digest}"
 
     def intercept_sensitive(self, user_input: str) -> dict:

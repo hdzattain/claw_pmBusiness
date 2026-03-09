@@ -32,3 +32,9 @@ npm run dev
 - All responses include `x-privacy-proof` header (placeholder)
 - Sensitive input goes through privacy interceptor
 - Logs must not store raw sensitive user content
+
+## Phase 1 Implemented
+- SQLite local persistence (`users`, `journal_entries`, `audit_logs`)
+- JWT auth (`/api/auth/register`, `/api/auth/login`)
+- Protected advice APIs (`/api/advice/daily`, `/api/advice/journal`)
+- Basic onboarding UI (register/login + daily advice + masked journal timeline)
