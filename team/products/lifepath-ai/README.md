@@ -1,49 +1,68 @@
-# LifePath AI (????) - MVP Scaffold
+# LifePath AI - MVP
 
-## Stack
-- Frontend: React + TypeScript (mobile-first)
-- Backend: FastAPI
-- Auth: JWT (placeholder)
-- Privacy: Interceptor skeleton (PII detect/mask/audit)
-- Memory: Mem0 adapter interface (placeholder)
+一个帮助你“晨间定动作 + 晚间做复盘 + 看板推进任务”的轻量系统。
 
-## Structure
-- `backend/` FastAPI API service
-- `frontend/` React UI shell
-- `docs/` development workflow and memory references
+## 🚀 现在已实现
 
-## Quick Start (Backend)
+- 账号注册/登录（JWT）
+- 晨间建议：`POST /api/advice/morning`
+- 晚间复盘：`POST /api/advice/evening`
+- 记录分页：`GET /api/advice/journal?limit=&offset=`
+- 前端任务看板：添加 / 勾选 / 删除（本地持久化）
+- 新手引导：1 分钟看懂怎么用
+
+## 🧱 技术栈
+
+- Frontend: React + TypeScript + Vite
+- Backend: FastAPI + SQLite
+- Auth: JWT (PyJWT)
+
+## 📁 目录结构
+
+- `backend/` API 服务
+- `frontend/` Web UI
+- `docs/` 使用手册、开发记录
+
+## ⚡ 快速启动
+
+### Backend
 ```bash
 cd backend
-python -m venv .venv
-.venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-## Quick Start (Frontend)
+### Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## API Conventions
-- All responses include `x-privacy-proof` header (placeholder)
-- Sensitive input goes through privacy interceptor
-- Logs must not store raw sensitive user content
+- 前端地址：`http://localhost:5173`
+- 后端 docs：`http://localhost:8000/docs`
 
-## Phase 1 Implemented
-- SQLite local persistence (`users`, `journal_entries`, `audit_logs`)
-- JWT auth (`/api/auth/register`, `/api/auth/login`)
-- Protected advice APIs (`/api/advice/daily`, `/api/advice/journal`)
-- Basic onboarding UI (register/login + daily advice + masked journal timeline)
+## 📘 图文手册（高中生可读）
 
-## Phase 2 Implemented
-- Morning/Evening flow APIs:
-  - `POST /api/advice/morning`
-  - `POST /api/advice/evening`
-  - `GET /api/advice/journal`
-- Rule-based recommendation engine (`backend/app/core/recommendation.py`)
-- Backend smoke tests (`backend/tests/test_api.py`)
-- Frontend upgraded to "晨间建议 + 晚间复盘" interaction
+请看：`docs/GUIDE_ZH_CN.md`
+
+包含：
+- 一分钟新手流程
+- 文本示意图
+- 每天使用节奏图（mermaid）
+- 常见问题与接口说明
+
+## 🔐 API 约定
+
+- 受保护接口需携带：`Authorization: Bearer <token>`
+- 统一错误结构：
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "HTTP_ERROR",
+    "message": "Invalid credentials"
+  }
+}
+```

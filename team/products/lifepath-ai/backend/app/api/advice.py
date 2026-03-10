@@ -10,24 +10,32 @@ privacy = PrivacyInterceptor()
 
 
 class AdviceInput(BaseModel):
-    text: str = Field(min_length=1, max_length=2000)
-    mood: str | None = Field(default=None, max_length=60)
-    goal: str | None = Field(default=None, max_length=200)
+    text: str = Field(min_length=1, max_length=2000, examples=["我今天不知道先做哪一件事"])
+    mood: str | None = Field(default=None, max_length=60, examples=["有点焦虑"])
+    goal: str | None = Field(default=None, max_length=200, examples=["今天完成简历首页"])
 
 
 class EveningInput(BaseModel):
-    wins: str = Field(min_length=1, max_length=800)
-    blockers: str = Field(min_length=1, max_length=800)
-    next_action: str = Field(min_length=1, max_length=200)
+    wins: str = Field(min_length=1, max_length=800, examples=["完成了作品集首页"])
+    blockers: str = Field(min_length=1, max_length=800, examples=["案例结构还不清楚"])
+    next_action: str = Field(min_length=1, max_length=200, examples=["明早先补齐一个案例"])
 
 
-@router.post("/daily")
+@router.post(
+    "/daily",
+    summary="兼容旧接口：获取晨间建议",
+    description="历史兼容接口，内部等价于 /morning。",
+)
 def daily_advice(payload: AdviceInput, user: dict = Depends(get_current_user)):
     # Kept for backward compatibility; alias to /morning
     return morning_advice(payload, user)
 
 
-@router.post("/morning")
+@router.post(
+    "/morning",
+    summary="晨间建议",
+    description="输入今天的问题、心情、目标，返回今日最优行动建议。",
+)
 def morning_advice(payload: AdviceInput, user: dict = Depends(get_current_user)):
     intercepted = privacy.intercept_sensitive(payload.text)
     history = list_journal_entries(user_id=int(user["id"]), limit=30)
@@ -64,7 +72,11 @@ def morning_advice(payload: AdviceInput, user: dict = Depends(get_current_user))
     }
 
 
-@router.post("/evening")
+@router.post(
+    "/evening",
+    summary="晚间复盘",
+    description="输入今日完成/阻塞/明日动作，返回复盘建议并写入记录。",
+)
 def evening_review(payload: EveningInput, user: dict = Depends(get_current_user)):
     merged = f"wins:{payload.wins} blockers:{payload.blockers} next:{payload.next_action}"
     intercepted = privacy.intercept_sensitive(merged)
@@ -88,7 +100,11 @@ def evening_review(payload: EveningInput, user: dict = Depends(get_current_user)
     return {"success": True, "review": review, "privacy": intercepted}
 
 
-@router.get("/journal")
+@router.get(
+    "/journal",
+    summary="获取复盘记录（分页）",
+    description="支持 limit/offset 分页，返回 total 与 has_more。",
+)
 def get_journal(user: dict = Depends(get_current_user), limit: int = 30, offset: int = 0):
     safe_limit = max(1, min(limit, 100))
     safe_offset = max(0, offset)

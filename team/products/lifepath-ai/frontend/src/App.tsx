@@ -27,6 +27,7 @@ export function App() {
   const [pagination, setPagination] = useState<JournalPagination | null>(null);
 
   const [boardInput, setBoardInput] = useState("");
+  const [showGuide, setShowGuide] = useState(() => localStorage.getItem("lifepath_hide_guide") !== "1");
   const [tasks, setTasks] = useState<TaskItem[]>(() => {
     try {
       const raw = localStorage.getItem("lifepath_tasks");
@@ -229,6 +230,11 @@ export function App() {
     setBoardInput("");
   }
 
+  function closeGuideForever() {
+    localStorage.setItem("lifepath_hide_guide", "1");
+    setShowGuide(false);
+  }
+
   function toggleTask(taskId: string) {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)));
   }
@@ -271,6 +277,22 @@ export function App() {
     <main className="wrap">
       <h1>仙人指路 · LifePath AI</h1>
       <p className="sub">晨间建议 + 晚间复盘（Phase 2）</p>
+
+      {showGuide && (
+        <section className="panel guide">
+          <div className="panel-head">
+            <h3>新手引导（看完1分钟就会用）</h3>
+            <button className="secondary" onClick={closeGuideForever}>我知道了</button>
+          </div>
+          <ol className="guide-list">
+            <li><b>第一步：晨间建议</b> —— 在“今天最困扰的问题”里写一句话，点“生成晨间建议”。</li>
+            <li><b>第二步：执行任务</b> —— 把建议拆成1~3个小任务，放到“今日任务看板”。</li>
+            <li><b>第三步：晚间复盘</b> —— 晚上填“完成了什么 / 卡在哪里 / 明早先做什么”。</li>
+            <li><b>第四步：看记录</b> —— 在“最近记录”里回看自己连续进步。</li>
+          </ol>
+          <p className="sub">小技巧：每次只做一个25分钟小动作，最容易坚持。</p>
+        </section>
+      )}
 
       <section className="panel">
         <h3>晨间：今日最优行动</h3>

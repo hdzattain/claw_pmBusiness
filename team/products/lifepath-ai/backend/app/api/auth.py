@@ -6,9 +6,19 @@ from app.core.security import create_access_token, hash_password, verify_passwor
 router = APIRouter()
 
 
+class ErrorSchema(BaseModel):
+    code: str
+    message: str
+
+
+class ErrorResponse(BaseModel):
+    success: bool = False
+    error: ErrorSchema
+
+
 class RegisterRequest(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    email: EmailStr = Field(examples=["student@example.com"])
+    password: str = Field(min_length=8, max_length=128, examples=["12345678"])
 
 
 class AuthResponse(BaseModel):
@@ -17,7 +27,13 @@ class AuthResponse(BaseModel):
     user: dict
 
 
-@router.post("/register")
+@router.post(
+    "/register",
+    response_model=AuthResponse,
+    responses={400: {"model": ErrorResponse}, 409: {"model": ErrorResponse}},
+    summary="注册账号",
+    description="创建新用户并返回 JWT token。",
+)
 def register(payload: RegisterRequest):
     if len(payload.password) < 8:
         raise HTTPException(status_code=400, detail="Password too short")
@@ -34,11 +50,17 @@ def register(payload: RegisterRequest):
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+    email: EmailStr = Field(examples=["student@example.com"])
+    password: str = Field(examples=["12345678"])
 
 
-@router.post("/login")
+@router.post(
+    "/login",
+    response_model=AuthResponse,
+    responses={401: {"model": ErrorResponse}},
+    summary="用户登录",
+    description="使用邮箱和密码登录，返回 JWT token。",
+)
 def login(payload: LoginRequest):
     user = get_user_by_email(payload.email)
     if not user or not verify_password(payload.password, user["password_hash"]):
