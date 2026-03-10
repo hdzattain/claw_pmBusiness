@@ -47,3 +47,51 @@ def test_auth_and_advice_flow():
     journal = client.get('/api/advice/journal', headers=headers)
     assert journal.status_code == 200
     assert journal.json()['success'] is True
+    assert 'pagination' in journal.json()
+
+
+def test_journal_pagination_and_validation():
+    email = 'phase2_user_2@example.com'
+    pwd = '12345678'
+
+    reg = client.post('/api/auth/register', json={'email': email, 'password': pwd})
+    assert reg.status_code in (200, 409)
+
+    login = client.post('/api/auth/login', json={'email': email, 'password': pwd})
+    assert login.status_code == 200
+    token = login.json()['token']
+    headers = {'Authorization': f'Bearer {token}'}
+
+    # 新增至少 12 条，验证分页
+    for i in range(12):
+        r = client.post('/api/advice/morning', json={
+            'text': f'第{i}条记录',
+            'mood': '平静',
+            'goal': '持续推进'
+        }, headers=headers)
+        assert r.status_code == 200
+
+    page1 = client.get('/api/advice/journal?limit=5&offset=0', headers=headers)
+    assert page1.status_code == 200
+    body1 = page1.json()
+    assert body1['success'] is True
+    assert len(body1['items']) == 5
+    assert body1['pagination']['limit'] == 5
+    assert body1['pagination']['offset'] == 0
+    assert body1['pagination']['total'] >= 12
+    assert body1['pagination']['has_more'] is True
+
+    page3 = client.get('/api/advice/journal?limit=5&offset=10', headers=headers)
+    assert page3.status_code == 200
+    body3 = page3.json()
+    assert body3['success'] is True
+    assert len(body3['items']) >= 2
+    assert body3['pagination']['offset'] == 10
+
+    # 输入校验：空字符串应被拒绝
+    bad = client.post('/api/advice/morning', json={
+        'text': '',
+        'mood': '平静',
+        'goal': '测试'
+    }, headers=headers)
+    assert bad.status_code == 422

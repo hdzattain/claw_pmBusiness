@@ -41,3 +41,6 @@ li { border-top: 1px solid #243553; padding: 10px 0; }
 li:first-child { border-top: 0; }
 .pre { white-space: pre-wrap; }
 .msg { color: #fbbf24; }
+button:disabled { opacity: .6; cursor: not-allowed; }
+.more-wrap { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px; }
+.secondary { width: auto; background: #1f2f52; padding: 8px 12px; }

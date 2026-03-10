@@ -100,16 +100,25 @@ def create_journal_entry(user_id: int, text_masked: str, raw_hash: str, mood: Op
     return int(row_id)
 
 
-def list_journal_entries(user_id: int, limit: int = 20) -> list[dict]:
+def list_journal_entries(user_id: int, limit: int = 20, offset: int = 0) -> list[dict]:
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, text_masked, mood, goal, created_at FROM journal_entries WHERE user_id = ? ORDER BY id DESC LIMIT ?",
-        (user_id, limit),
+        "SELECT id, text_masked, mood, goal, created_at FROM journal_entries WHERE user_id = ? ORDER BY id DESC LIMIT ? OFFSET ?",
+        (user_id, limit, offset),
     )
     rows = cur.fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+
+def count_journal_entries(user_id: int) -> int:
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(1) as cnt FROM journal_entries WHERE user_id = ?", (user_id,))
+    row = cur.fetchone()
+    conn.close()
+    return int(row["cnt"]) if row else 0
 
 
 def create_audit_log(user_id: Optional[int], action: str, privacy_proof: Optional[str], payload_hash: Optional[str]) -> int:

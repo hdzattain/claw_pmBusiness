@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from app.api.dependencies import get_current_user
-from app.core.db import create_audit_log, create_journal_entry, list_journal_entries
+from app.core.db import create_audit_log, create_journal_entry, list_journal_entries, count_journal_entries
 from app.core.privacy import PrivacyInterceptor
 from app.core.recommendation import RecommendationInput, generate_evening_review, generate_morning_action
 
@@ -10,15 +10,15 @@ privacy = PrivacyInterceptor()
 
 
 class AdviceInput(BaseModel):
-    text: str
-    mood: str | None = None
-    goal: str | None = None
+    text: str = Field(min_length=1, max_length=2000)
+    mood: str | None = Field(default=None, max_length=60)
+    goal: str | None = Field(default=None, max_length=200)
 
 
 class EveningInput(BaseModel):
-    wins: str
-    blockers: str
-    next_action: str
+    wins: str = Field(min_length=1, max_length=800)
+    blockers: str = Field(min_length=1, max_length=800)
+    next_action: str = Field(min_length=1, max_length=200)
 
 
 @router.post("/daily")
@@ -89,6 +89,18 @@ def evening_review(payload: EveningInput, user: dict = Depends(get_current_user)
 
 
 @router.get("/journal")
-def get_journal(user: dict = Depends(get_current_user)):
-    items = list_journal_entries(user_id=int(user["id"]), limit=30)
-    return {"success": True, "items": items}
+def get_journal(user: dict = Depends(get_current_user), limit: int = 30, offset: int = 0):
+    safe_limit = max(1, min(limit, 100))
+    safe_offset = max(0, offset)
+    items = list_journal_entries(user_id=int(user["id"]), limit=safe_limit, offset=safe_offset)
+    total = count_journal_entries(user_id=int(user["id"]))
+    return {
+        "success": True,
+        "items": items,
+        "pagination": {
+            "limit": safe_limit,
+            "offset": safe_offset,
+            "total": total,
+            "has_more": safe_offset + len(items) < total,
+        },
+    }
