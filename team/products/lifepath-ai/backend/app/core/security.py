@@ -1,6 +1,7 @@
 import hashlib
 from datetime import datetime, timedelta, timezone
-from jose import jwt, JWTError
+import jwt
+from jwt import InvalidTokenError
 from app.core.config import settings
 
 
@@ -27,5 +28,5 @@ def create_access_token(user_id: int, email: str) -> str:
 def decode_access_token(token: str) -> dict:
     try:
         return jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
-    except JWTError as exc:
+    except InvalidTokenError as exc:
         raise ValueError("Invalid token") from exc

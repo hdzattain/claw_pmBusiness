@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 type JournalItem = { id: number; text_masked: string; mood?: string; goal?: string; created_at: string };
 type JournalPagination = { limit: number; offset: number; total: number; has_more: boolean };
+type TaskItem = { id: string; title: string; done: boolean };
 
 const API = "http://localhost:8000";
 const PAGE_SIZE = 10;
@@ -25,6 +26,16 @@ export function App() {
   const [journal, setJournal] = useState<JournalItem[]>([]);
   const [pagination, setPagination] = useState<JournalPagination | null>(null);
 
+  const [boardInput, setBoardInput] = useState("");
+  const [tasks, setTasks] = useState<TaskItem[]>(() => {
+    try {
+      const raw = localStorage.getItem("lifepath_tasks");
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [msg, setMsg] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [morningLoading, setMorningLoading] = useState(false);
@@ -44,6 +55,10 @@ export function App() {
     localStorage.setItem("lifepath_token", token);
     void loadJournal({ tokenValue: token, offset: 0, append: false });
   }, [token]);
+
+  useEffect(() => {
+    localStorage.setItem("lifepath_tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   async function parseJsonSafe(res: Response) {
     try {
@@ -204,6 +219,24 @@ export function App() {
     }
   }
 
+  function addTask() {
+    const title = boardInput.trim();
+    if (!title) {
+      setMsg("请输入任务内容");
+      return;
+    }
+    setTasks((prev) => [{ id: `${Date.now()}`, title, done: false }, ...prev]);
+    setBoardInput("");
+  }
+
+  function toggleTask(taskId: string) {
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)));
+  }
+
+  function deleteTask(taskId: string) {
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+  }
+
   function logout() {
     localStorage.removeItem("lifepath_token");
     setToken("");
@@ -259,6 +292,29 @@ export function App() {
           {eveningLoading ? "生成中..." : "生成晚间复盘"}
         </button>
         {eveningResult && <pre className="card pre">{eveningResult}</pre>}
+      </section>
+
+      <section className="panel">
+        <h3>今日任务看板</h3>
+        <div className="task-input-row">
+          <input value={boardInput} onChange={(e) => setBoardInput(e.target.value)} placeholder="添加一个今日任务（如：完善登录页提示）" />
+          <button className="secondary" onClick={addTask}>添加</button>
+        </div>
+        {tasks.length === 0 ? (
+          <div className="empty">还没有任务，先添加一条今天最关键的动作。</div>
+        ) : (
+          <ul>
+            {tasks.map((t) => (
+              <li key={t.id} className="task-item">
+                <label>
+                  <input type="checkbox" checked={t.done} onChange={() => toggleTask(t.id)} />
+                  <span className={t.done ? "done" : ""}>{t.title}</span>
+                </label>
+                <button className="danger" onClick={() => deleteTask(t.id)}>删除</button>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className="panel">
