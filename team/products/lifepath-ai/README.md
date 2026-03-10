@@ -10,6 +10,7 @@
 - 记录分页：`GET /api/advice/journal?limit=&offset=`
 - 前端任务看板：添加 / 勾选 / 删除（本地持久化）
 - 新手引导：1 分钟看懂怎么用
+- 可插拔模型适配：`heuristic` / `ollama` / `openai_compat`（可接 DeepSeek / 兼容 OpenAI 协议服务）
 
 ## 🧱 技术栈
 
@@ -41,6 +42,25 @@ npm run dev
 
 - 前端地址：`http://localhost:5173`
 - 后端 docs：`http://localhost:8000/docs`
+
+## 🔌 模型接入（OSS-first）
+
+后端支持以下 provider（默认 `heuristic`）：
+
+- `heuristic`：本地规则引擎（零依赖）
+- `ollama`：接本地开源模型（如 qwen2.5 / llama3）
+- `openai_compat`：接 OpenAI 协议兼容服务（可配置 DeepSeek）
+
+环境变量示例：
+
+```bash
+LIFEPATH_MODEL_PROVIDER=openai_compat
+LIFEPATH_OPENAI_BASE_URL=https://api.deepseek.com/v1
+LIFEPATH_OPENAI_MODEL=deepseek-chat
+# LIFEPATH_OPENAI_API_KEY 可不写，系统会尝试从 ~/.openclaw/secret/selfdeployDeepSeekV3Key 读取
+```
+
+> 安全：不要把 API key 提交到仓库。
 
 ## 📘 图文手册（高中生可读）
 
