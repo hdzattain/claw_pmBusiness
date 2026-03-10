@@ -1,0 +1,31 @@
+name: PR Guard
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  enforce-template-sections:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required PR sections
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          echo "Checking PR body..."
+
+          required=(
+            "## OSS-First Check (Required)"
+            "## Testing & Validation"
+            "## UX & Docs (Required)"
+            "## Checklist (Merge Gate)"
+          )
+
+          for section in "${required[@]}"; do
+            if ! printf '%s' "$PR_BODY" | grep -Fq "$section"; then
+              echo "Missing section: $section"
+              exit 1
+            fi
+          done
+
+          echo "All required sections found."

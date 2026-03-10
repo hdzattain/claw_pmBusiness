@@ -1,0 +1,17 @@
+name: Main Protection Hint
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  remind-branch-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reminder
+        run: |
+          echo "Direct push reached main."
+          echo "Please enable branch protection in GitHub settings:"
+          echo "- Require a pull request before merging"
+          echo "- Require status checks to pass (PR Guard)"
+          echo "- Require at least 1 approval"
