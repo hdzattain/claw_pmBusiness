@@ -14,6 +14,7 @@ def test_health():
     r = client.get('/health')
     assert r.status_code == 200
     assert r.json()['ok'] is True
+    assert r.json()['success'] is True
 
 
 def test_auth_and_advice_flow():
@@ -88,10 +89,13 @@ def test_journal_pagination_and_validation():
     assert len(body3['items']) >= 2
     assert body3['pagination']['offset'] == 10
 
-    # 输入校验：空字符串应被拒绝
+    # 输入校验：空字符串应被拒绝，且返回统一错误结构
     bad = client.post('/api/advice/morning', json={
         'text': '',
         'mood': '平静',
         'goal': '测试'
     }, headers=headers)
     assert bad.status_code == 422
+    bad_body = bad.json()
+    assert bad_body['success'] is False
+    assert bad_body['error']['code'] == 'VALIDATION_ERROR'

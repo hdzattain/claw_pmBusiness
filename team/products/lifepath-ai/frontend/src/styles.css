@@ -44,3 +44,4 @@ li:first-child { border-top: 0; }
 button:disabled { opacity: .6; cursor: not-allowed; }
 .more-wrap { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px; }
 .secondary { width: auto; background: #1f2f52; padding: 8px 12px; }
+.empty { color: #9fb0d9; padding: 12px; border: 1px dashed #2a3d64; border-radius: 10px; }

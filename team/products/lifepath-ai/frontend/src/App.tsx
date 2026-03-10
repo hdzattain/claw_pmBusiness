@@ -53,6 +53,16 @@ export function App() {
     }
   }
 
+  function getErrorMessage(data: any, fallback: string) {
+    return data?.error?.message || data?.detail || fallback;
+  }
+
+  function formatTime(ts: string) {
+    const d = new Date(ts);
+    if (Number.isNaN(d.getTime())) return ts;
+    return d.toLocaleString("zh-CN", { hour12: false });
+  }
+
   function validateAuthForm() {
     if (!email.trim()) return "请输入邮箱";
     if (password.length < 8) return "密码至少8位";
@@ -78,7 +88,7 @@ export function App() {
       });
       const data = await parseJsonSafe(res);
       if (!res.ok || !data?.success) {
-        setMsg(data?.detail || "认证失败");
+        setMsg(getErrorMessage(data, "认证失败"));
         return;
       }
       setToken(data.token);
@@ -114,7 +124,7 @@ export function App() {
       }
 
       if (!res.ok || !data?.success) {
-        setMsg(data?.detail || "请求失败");
+        setMsg(getErrorMessage(data, "请求失败"));
         return;
       }
 
@@ -152,7 +162,7 @@ export function App() {
       }
 
       if (!res.ok || !data?.success) {
-        setMsg(data?.detail || "请求失败");
+        setMsg(getErrorMessage(data, "请求失败"));
         return;
       }
 
@@ -183,6 +193,7 @@ export function App() {
       }
 
       if (!data?.success) {
+        setMsg(getErrorMessage(data, "加载记录失败"));
         return;
       }
 
@@ -255,14 +266,18 @@ export function App() {
           <h3>最近记录（脱敏）</h3>
           <button onClick={logout}>退出</button>
         </div>
-        <ul>
-          {journal.map((j) => (
-            <li key={j.id}>
-              <p>{j.text_masked}</p>
-              <small>{j.created_at}</small>
-            </li>
-          ))}
-        </ul>
+        {!journalLoading && journal.length === 0 ? (
+          <div className="empty">还没有记录，先完成一次晨间建议或晚间复盘吧。</div>
+        ) : (
+          <ul>
+            {journal.map((j) => (
+              <li key={j.id}>
+                <p>{j.text_masked}</p>
+                <small>{formatTime(j.created_at)}</small>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {pagination && (
           <div className="more-wrap">
