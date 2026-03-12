@@ -132,3 +132,12 @@ def create_audit_log(user_id: Optional[int], action: str, privacy_proof: Optiona
     row_id = cur.lastrowid
     conn.close()
     return int(row_id)
+
+
+def update_user_password_hash(user_id: int, new_hash: str) -> None:
+    """更新用户的密码哈希"""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, user_id))
+    conn.commit()
+    conn.close()

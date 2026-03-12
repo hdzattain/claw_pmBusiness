@@ -25,22 +25,68 @@
 
 ## ⚡ 快速启动
 
-### Backend
+### 环境变量配置
+
+#### 后端环境变量
 ```bash
+cd backend
+cp .env.example .env
+# 编辑 .env 文件，设置你的配置
+```
+
+关键环境变量：
+- `LIFEPATH_JWT_SECRET`: JWT 密钥（生产环境必改）
+- `DATABASE_URL`: 数据库连接字符串
+- `HOST`/`PORT`: 服务监听地址
+
+#### 前端环境变量
+```bash
+cd frontend
+# .env 文件已包含默认配置
+# 如需修改 API 地址，编辑 .env 文件
+```
+
+关键环境变量：
+- `VITE_API_BASE_URL`: 后端 API 地址
+
+### 一键启动（推荐 - Docker）
+
+```bash
+# 构建并启动所有服务
+docker-compose up --build
+
+# 后台运行
+docker-compose up -d --build
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+```
+
+### 本地开发启动
+
+```bash
+# 后端
 cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
-```
 
-### Frontend
-```bash
+# 前端（新终端）
 cd frontend
 npm install
 npm run dev
 ```
 
+### Docker 启动（Task 4 完成后可用）
+```bash
+docker-compose up --build
+```
+
 - 前端地址：`http://localhost:5173`
 - 后端 docs：`http://localhost:8000/docs`
+- 健康检查：`http://localhost:8000/health`
 
 ## 📘 图文手册（高中生可读）
 

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lifepath-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - LIFEPATH_JWT_SECRET=your-production-secret-key-change-this
+      - DATABASE_URL=sqlite:///./data/lifepath.db
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=False
+      - FRONTEND_URL=http://localhost:3000
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - lifepath-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lifepath-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - lifepath-network
+    restart: unless-stopped
+
+volumes:
+  backend_data:
+    driver: local
+
+networks:
+  lifepath-network:
+    driver: bridge
